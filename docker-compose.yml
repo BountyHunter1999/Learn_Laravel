@@ -1,0 +1,14 @@
+services:
+  composer:
+    image: composer:lts
+    volumes:
+      - ./:/var/www/html
+  app:
+    image: php:8.4-fpm-bookworm
+    volumes:
+      - ./:/var/www/html
+      # u know node_modules being node_modules
+      - /var/www/html/node_modules
+    ports:
+      # for artisan serve
+      - 8000:8000
