@@ -36,3 +36,9 @@
     - this provides CRUD functionality for the model
   - `-c` generates a factory for the model
     - factories are used to define the structure of fake model instances for testing purposes
+  - create 3 files:
+    - app/Models/Chirp.php - The Eloquent model.
+    - database/migrations/<timestamp>_create_chirps_table.php - The database migration that will create your database table.
+    - app/Http/Controller/ChirpController.php - The HTTP controller that will take incoming requests and return responses.
+
+## Routes
