@@ -1,0 +1,129 @@
+# version: "3.8"
+
+services:
+  nginx:
+    build:
+      context: nginx
+      # looking in respect to the nginx folder
+      dockerfile: ../dockerfiles/Dockerfile.nginx
+      args:
+        NGINXUSER: $USER
+        NGINXGROUP: $USER
+    ports:
+      - 80:80
+    volumes:
+      - .:/var/www/html
+      - ./nginx/dev/mailpit.conf:/etc/nginx/conf.d/mailpit.conf
+      - ./nginx/dev/minio.conf:/etc/nginx/conf.d/minio.conf
+      - ./nginx/dev/meilisearch.conf:/etc/nginx/conf.d/meilisearch.conf
+    restart: unless-stopped
+    depends_on:
+      - db
+      - php
+      - meilisearch
+      - mailpit
+
+  db:
+    image: mysql:8.0.0
+    #command: --authentication_policy=mysql_native_password
+    # for m1 we need to do something else
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_HOST:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    restart: unless-stopped
+    volumes:
+      - primo_mysql:/var/lib/mysql
+
+  php:
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.php
+      args:
+        PHPUSER: $USER
+        PHPGROUP: $USER
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+
+  composer:
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.composer
+      args:
+        COMPOSERUSER: $USER
+        COMPOSERGROUP: $USER
+    volumes:
+      - .:/var/www/html
+    # we want it to run in work dir instead of home dir
+    working_dir: /var/www/html
+
+  npm:
+    image: node:current-alpine
+    volumes:
+      - ./:/var/www/html
+    entrypoint: ["npm"]
+    working_dir: /var/www/html
+
+  artisan:
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.php
+      args:
+        PHPUSER: $USER
+        PHPGROUP: $USER
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+    entrypoint: ["php", "/var/www/html/artisan"]
+    depends_on:
+      - db
+
+  minio:
+    image: quay.io/minio/minio
+    container_name: primo_minio
+    ports:
+      - 9000:9000
+      - 9001:9001
+    command: ["server", "/data", "--console-address", ":9001"]
+    volumes:
+      - primo_minio:/data
+    restart: unless-stopped
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: primo_mailpit
+    restart: unless-stopped
+    ports:
+      - 8025:8025
+      - 1025:1025
+    environment:
+      MP_MAX_MESSAGES: ${MP_MAX_MESSAGES:-1000}
+      MP_DATA_FILE: ${MP_DATA_FILE:-/.mailpit/emails.db}
+      MP_SMTP_AUTH_ALLOW_INSECURE: ${MP_SMTP_AUTH_ALLOW_INSECURE:-1}
+      MP_SMTP_AUTH: ${MP_SMTP_AUTH}
+      MP_UI_AUTH: ${MP_UI_AUTH}
+    volumes:
+      - primo_mailpit:${MP_DATA_FILE:-/.mailpit/emails.db}
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.6
+    ports:
+      - "${MEILISEARCH_PORT:-7700}:7700"
+    volumes:
+      - primo_meilisearchdata:/data.ms
+    container_name: meilisearch
+    restart: unless-stopped
+
+volumes:
+  primo_mysql:
+  primo_minio:
+  primo_mailpit:
+  primo_meilisearchdata:
