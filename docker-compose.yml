@@ -14,7 +14,7 @@ services:
     volumes:
       - .:/var/www/html
       - ./nginx/dev/mailpit.conf:/etc/nginx/conf.d/mailpit.conf
-      - ./nginx/dev/minio.conf:/etc/nginx/conf.d/minio.conf
+      # - ./nginx/dev/minio.conf:/etc/nginx/conf.d/minio.conf
       - ./nginx/dev/meilisearch.conf:/etc/nginx/conf.d/meilisearch.conf
     restart: unless-stopped
     depends_on:
@@ -25,7 +25,7 @@ services:
 
   db:
     image: mysql:8.0.0
-    #command: --authentication_policy=mysql_native_password
+    ##command: --authentication_policy=mysql_native_password
     # for m1 we need to do something else
     ports:
       - 3306:3306
