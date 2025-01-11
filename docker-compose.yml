@@ -4,7 +4,9 @@ services:
     volumes:
       - ./:/var/www/html
   app:
-    image: php:8.4-fpm-bookworm
+    build:
+      context: .
+      dockerfile: ./dockerfiles/Dockerfile
     volumes:
       - ./:/var/www/html
       # u know node_modules being node_modules
