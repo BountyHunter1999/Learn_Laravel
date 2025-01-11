@@ -58,10 +58,10 @@ COPY --chown=www-data:www-data composer.json composer.lock ./
 # --no-autoloader: Prevents generating the autoloader until we have all files
 RUN composer install --no-scripts --no-autoloader
 
-# COPY --chown=www-data:www-data package.json package-lock.json ./
+COPY --chown=www-data:www-data package.json package-lock.json ./
 
 # CI is preferred over install for exact version matching
-# RUN npm ci
+RUN npm ci
 
 # COPY the rest of the application
 COPY --chown=www-data:www-data . .
@@ -70,7 +70,7 @@ COPY --chown=www-data:www-data . .
 RUN composer dump-autoload --optimize
 
 # Build frontend assets
-# RUN npm run build
+RUN npm run build
 
 # Set up proper permissions
 RUN chown -R www-data:www-data storage bootstrap/cache && \
