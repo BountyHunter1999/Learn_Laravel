@@ -29,3 +29,17 @@
     - **`-m` (Migration)**: Generates a migration file for the model, allowing us to define the database schema for the corresponding table.
     - **`-r` (Resource Controller)**: Generates a resource controller for the model, pre-configured with standard CRUD methods (`index`, `create`, `store`, `show`, `edit`, `update`, `destroy`).
     - **`-c` (Factory)**: Generates a factory for the model, used to define the structure of fake data for testing or database seeding.
+
+## Inspect DB
+
+- `php artisan db:show`: show db information
+- `php artisan db:table users` show the schema of the users table
+- `php artisan migrate:fresh` update undeployed migration and rebuild our database from scratch
+
+### Tinker
+
+- `php artisan tinker` this allows for arbitrary PHP code execution
+
+```bash
+App\Models\Chirp::all();
+```

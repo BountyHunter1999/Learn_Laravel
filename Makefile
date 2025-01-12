@@ -16,3 +16,4 @@ composer:
 
 comp_command:
 	docker compose run --rm  -v $$(pwd):/var/www/html -w /var/www/html composer $(CMD)
+

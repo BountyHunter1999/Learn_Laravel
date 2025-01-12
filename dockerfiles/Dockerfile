@@ -7,7 +7,15 @@ ARG NODE_VERSION=22.12.0
 ARG NPM_VERSION=10.9.0
 ARG NVM_VERSION=0.39.0
 ENV NVM_DIR=/usr/local/nvm
-ARG PHP_EXTENSIONS="pdo_mysql mbstring exif pcntl bcmath gd zip"
+# intl for internationalization-related tasks, such as formatting numbers, dates, currencies,
+#### and other locale-sensitive data
+# mbstring for multi-byte string handling
+# exif for reading EXIF metadata in images
+# pcntl for process control functions
+# bcmath for arbitrary precision mathematics
+# gd for image manipulation (graphics drawing)
+# zip for handling zip file compression
+ARG PHP_EXTENSIONS="pdo_mysql mbstring exif pcntl bcmath gd zip intl"
 
 # Install dependencies for NVM, Node.js and other utilities
 # curl : for downloading the node.js setup script
@@ -18,6 +26,7 @@ ARG PHP_EXTENSIONS="pdo_mysql mbstring exif pcntl bcmath gd zip"
 # libxml2-dev : lib for XML parsing, laravel uses XML in various place, including
 ####### config files and API responses
 # libzip-dev :  required to enable zip support in PHP
+# libicu-dev: Development libraries for Unicode and internationalization support, required for the intl PHP extension.
 RUN apt-get update && \
     apt-get install -y \
     ca-certificates \
@@ -28,6 +37,7 @@ RUN apt-get update && \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
+    libicu-dev \
     zip unzip \
     && docker-php-ext-install -j$(nproc) ${PHP_EXTENSIONS} \
     && apt-get clean \
@@ -77,4 +87,4 @@ RUN chown -R www-data:www-data storage bootstrap/cache && \
    chmod -R 755 storage bootstrap/cache
 
 
-
+USER www-data
