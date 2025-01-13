@@ -19,7 +19,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::resource('chirps', ChirpController::class)
-    ->only(['index', 'store'])
+    /* edit will show the edit form and update will accept the data from the form and update the model */
+    ->only(['index', 'store', 'edit', 'update'])
     ->middleware(['auth', 'verified']);
 
 require __DIR__.'/auth.php';
